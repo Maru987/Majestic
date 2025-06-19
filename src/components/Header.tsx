@@ -11,9 +11,19 @@ const Header: React.FC = () => {
   const [arrowsVisible, setArrowsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [projectorEffect, setProjectorEffect] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const headerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+
+  // Fonction pour gérer le défilement vers les sections
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+      setIsMobileMenuOpen(false); // Ferme le menu mobile après la sélection
+    }
+  };
 
   useEffect(() => {
     // Déclencher l'animation des rideaux après un court délai
@@ -73,20 +83,6 @@ const Header: React.FC = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [curtainsClosing]);
-
-  // Fonction pour scroller vers la section suivante
-  const scrollToNextSection = () => {
-    // Si on est sur la page d'accueil, faire défiler vers la section films
-    if (location.pathname === '/') {
-      const filmsSection = document.getElementById('films');
-      if (filmsSection) {
-        filmsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      // Sinon rediriger vers la page d'accueil
-      window.location.href = '/';
-    }
-  };
 
   return (
     <header ref={headerRef} className="h-screen relative bg-cinema-black overflow-hidden">
@@ -153,17 +149,45 @@ const Header: React.FC = () => {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-6 items-center">
-            <Link to="/#films" className="text-white hover:text-cinema-red transition">Films</Link>
-            <Link to="/prochainement" className={`text-white hover:text-cinema-red transition ${location.pathname === '/prochainement' ? 'text-cinema-red' : ''}`}>Prochainement</Link>
-            <Link to="/#horaires" className="text-white hover:text-cinema-red transition">Horaires</Link>
-            <Link to="/evenements" className={`text-white hover:text-cinema-red transition ${location.pathname === '/evenements' ? 'text-cinema-red' : ''}`}>Événements spéciaux</Link>
-            <Link to="/#newsletter" className="text-white hover:text-cinema-red transition">Newsletter</Link>
+            <button 
+              onClick={() => scrollToSection('films')} 
+              className="text-white hover:text-cinema-red transition cursor-pointer"
+            >
+              Films
+            </button>
+            <Link 
+              to="/prochainement" 
+              className={`text-white hover:text-cinema-red transition ${location.pathname === '/prochainement' ? 'text-cinema-red' : ''}`}
+            >
+              Prochainement
+            </Link>
+            <button 
+              onClick={() => scrollToSection('horaires')} 
+              className="text-white hover:text-cinema-red transition cursor-pointer"
+            >
+              Horaires
+            </button>
+            <button 
+              onClick={() => scrollToSection('evenements')} 
+              className="text-white hover:text-cinema-red transition cursor-pointer"
+            >
+              Événements spéciaux
+            </button>
+            <button 
+              onClick={() => scrollToSection('newsletter')} 
+              className="text-white hover:text-cinema-red transition cursor-pointer"
+            >
+              Newsletter
+            </button>
             <Search className="w-5 h-5 text-white cursor-pointer hover:text-cinema-red transition ml-4" />
           </div>
 
           {/* Mobile Menu Icon */}
           <div className="md:hidden">
-            <Menu className="w-6 h-6 text-white" />
+            <Menu 
+              className="w-6 h-6 text-white cursor-pointer hover:text-cinema-red transition"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            />
           </div>
         </nav>
       </div>
@@ -176,48 +200,68 @@ const Header: React.FC = () => {
       >
         {/* Halo principal du projecteur avec animation - opacité réduite */}
         <div className="w-[400px] md:w-[600px] h-[300px] md:h-[400px] bg-white/5 rounded-full animate-projector-flicker"></div>
+      </div>
+
+      {/* Logo et Bouton centrés */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center">
+        <div className={`transition-opacity duration-1000 ${logoVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <img
+            src="/images/logo.png"
+            alt="Majestic Tahiti Cinema"
+            className="w-[300px] md:w-[400px] drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+          />
+        </div>
         
-        {/* Petits points lumineux aléatoires pour simuler les poussières dans le faisceau */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <div 
-              key={i} 
-              className="absolute w-1 h-1 bg-white/20 rounded-full animate-ping" 
-              style={{ 
-                top: `${Math.random() * 100}%`, 
-                left: `${Math.random() * 100}%`,
-                animationDuration: `${1 + Math.random() * 3}s`,
-                animationDelay: `${Math.random() * 2}s`
-              }}
-            ></div>
-          ))}
+        {/* Bouton "Voir les films à l'affiche" */}
+        <div className={`mt-2 transition-opacity duration-1000 ${arrowsVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <button
+            onClick={() => scrollToSection('films')}
+            className="group flex flex-col items-center"
+          >
+            <span className="text-white text-lg mb-1">Voir les films à l'affiche</span>
+            <div className="flex flex-col">
+              <ChevronDown className="w-8 h-8 text-cinema-red animate-bounce" />
+              <ChevronDown className="w-8 h-8 text-cinema-red -mt-4 animate-bounce" style={{ animationDelay: '0.2s' }} />
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Logo Majestic au centre de l'écran */}
-      <div 
-        className={`absolute top-[45%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 transition-opacity duration-1000 flex flex-col items-center ${
-          logoVisible ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <img 
-          src="/images/logo.png" 
-          alt="Logo Majestic Tahiti" 
-          className="w-[350px] md:w-[500px] object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]"
-        />
-        
-        {/* Flèches rebondissantes sous le logo */}
-        <div 
-          className={`mt-2 flex flex-col items-center cursor-pointer transition-opacity duration-1000 ${
-            arrowsVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-          onClick={scrollToNextSection}
-        >
-          <p className="text-white text-lg mb-1 font-medium">Découvrir</p>
-          <div className="flex flex-col">
-            <ChevronDown className="w-8 h-8 text-cinema-red animate-bounce" />
-            <ChevronDown className="w-8 h-8 text-cinema-red -mt-4 animate-bounce" style={{ animationDelay: '0.2s' }} />
-          </div>
+      {/* Menu Mobile */}
+      <div className={`md:hidden absolute top-[80px] right-4 z-50 bg-black/90 rounded-lg p-4 transform transition-transform duration-300 origin-top-right ${
+        isMobileMenuOpen ? 'scale-100' : 'scale-0'
+      }`}>
+        <div className="flex flex-col space-y-4">
+          <button 
+            onClick={() => scrollToSection('films')} 
+            className="text-white hover:text-cinema-red transition text-left"
+          >
+            Films
+          </button>
+          <Link 
+            to="/prochainement" 
+            className={`text-white hover:text-cinema-red transition ${location.pathname === '/prochainement' ? 'text-cinema-red' : ''}`}
+          >
+            Prochainement
+          </Link>
+          <button 
+            onClick={() => scrollToSection('horaires')} 
+            className="text-white hover:text-cinema-red transition text-left"
+          >
+            Horaires
+          </button>
+          <button 
+            onClick={() => scrollToSection('evenements')} 
+            className="text-white hover:text-cinema-red transition text-left"
+          >
+            Événements spéciaux
+          </button>
+          <button 
+            onClick={() => scrollToSection('newsletter')} 
+            className="text-white hover:text-cinema-red transition text-left"
+          >
+            Newsletter
+          </button>
         </div>
       </div>
     </header>

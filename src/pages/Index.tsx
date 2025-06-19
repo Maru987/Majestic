@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import InfoTicker from "@/components/InfoTicker";
 import MoviesSection from "@/components/MoviesSection";
 import PriceBanner from "@/components/PriceBanner";
-import FilmSchedule from "@/components/FilmSchedule";
+import EventsSection from "@/components/EventsSection";
 import Newsletter from "@/components/Newsletter";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -63,8 +63,8 @@ const Index: React.FC = () => {
       {/* Bannière des tarifs */}
       <PriceBanner />
       
-      {/* Schedule Section */}
-      <FilmSchedule />
+      {/* Events Section */}
+      <EventsSection />
       
       {/* Newsletter Section */}
       <Newsletter />
